@@ -105,7 +105,7 @@ kbd { font: 500 10.5px var(--font-mono); padding: 1px 6px; border-radius: 4px; b
 .ico { flex: none; display: block; }
 
 /* ---------- griglia app ---------- */
-#app { display: grid; grid-template-rows: 48px minmax(0, 1fr) 28px; grid-template-columns: 268px minmax(0, 1fr) 352px; height: 100%; }
+#app { display: grid; grid-template-rows: 48px minmax(0, 1fr) 28px; grid-template-columns: 268px minmax(0, 1fr) 352px; height: 100%; padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
 #top { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
 #left { grid-row: 2; grid-column: 1; background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
 #center { grid-row: 2; grid-column: 2; position: relative; min-width: 0; min-height: 0; }
@@ -515,7 +515,7 @@ pre.code.mini .ln { padding: 0; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) { #app { grid-template-columns: 236px minmax(0, 1fr) 316px; } }
-@media (max-width: 980px) {
+@media (max-width: 699px), (max-width: 980px) and (orientation: landscape) {
   #app { grid-template-columns: minmax(0, 1fr); }
   #center { grid-column: 1; }
   #left, #right { position: fixed; top: calc(48px + env(safe-area-inset-top, 0px)); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); z-index: 60; width: min(330px, 88vw); box-shadow: var(--shadow-pop); transition: transform .22s ease; }
@@ -541,6 +541,82 @@ pre.code.mini .ln { padding: 0; }
   .cgrid { grid-template-columns: repeat(3, 60px); } .slot { width: 60px; height: 60px; } .slotbig .slot { width: 72px; height: 72px; }
   .craft { padding: 14px; gap: 12px; }
 }
+/* tall screens (portrait monitors, tablets): the two panels sit side by side under the canvas */
+#dock-handle { display: none; }
+@media (min-width: 700px) and (orientation: portrait) {
+  #app { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 48px minmax(0, 1fr) var(--dock, 40%) 28px; }
+  #center { grid-row: 2; grid-column: 1 / -1; }
+  #left { grid-row: 3; grid-column: 1; border-top: 1px solid var(--line); }
+  #right { grid-row: 3; grid-column: 2; border-top: 1px solid var(--line); }
+  #status { grid-row: 4; }
+  #dock-handle { display: block; grid-row: 3; grid-column: 1 / -1; align-self: start; position: relative; height: 14px; margin-top: -7px; z-index: 8; cursor: row-resize; touch-action: none; outline: none; }
+  #dock-handle::after { content: ''; position: absolute; left: 50%; top: 5px; width: 48px; height: 4px; margin-left: -24px; border-radius: 4px; background: var(--line-2); transition: background .15s; }
+  #dock-handle:hover::after, #dock-handle.drag::after, #dock-handle:focus-visible::after { background: var(--accent); }
+  .cvtools.br { bottom: 150px; }
+}
+/* phones held upright: properties open as a bottom sheet, so the node stays visible above */
+@media (max-width: 699px) and (orientation: portrait) {
+  #right { left: 0; right: 0; top: auto; width: auto; height: min(62vh, calc(100vh - 170px)); height: min(62dvh, calc(100dvh - 170px)); transform: translateY(105%); border-left: 0; border-top: 1px solid var(--line-2); border-radius: 14px 14px 0 0; }
+  #right::before { content: ''; flex: none; width: 40px; height: 4px; border-radius: 4px; background: var(--line-2); margin: 8px auto 0; }
+  body.dr-open #scrim { background: rgba(8, 9, 11, .28); }
+}
+/* whole-screen canvas: everything but the canvas and its floating tools is hidden */
+.fo { display: none; }
+.tsep { width: 1px; height: 18px; background: var(--line-2); margin: 0 3px; flex: none; }
+body.focus .fo { display: inline-grid; }
+body.focus .tsep.fo { display: block; }
+body.focus #top, body.focus #left, body.focus #right, body.focus #status, body.focus #dock-handle, body.focus #scrim { display: none !important; }
+body.focus #app { grid-template-rows: minmax(0, 1fr) !important; grid-template-columns: minmax(0, 1fr) !important; }
+body.focus #center { grid-row: 1 !important; grid-column: 1 !important; }
+body.focus .cvtools.br { bottom: 150px; }
+#t-focus[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 640px) { body.focus .cvtools.tl { max-width: 30%; } .cvtools.tr { right: 8px; } }
+
+/* ---------- wiki previews ---------- */
+.pvi { flex: none; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 4px; background: color-mix(in srgb, var(--node-2) 70%, transparent); }
+.pvi img { max-width: 20px; max-height: 20px; image-rendering: pixelated; object-fit: contain; opacity: 0; transition: opacity .15s; }
+.pvi img.ok { opacity: 1; }
+.pvbox { border-top: 1px solid var(--line); }
+.pvbar { display: flex; align-items: center; gap: 6px; width: 100%; height: 24px; padding: 0 9px; background: none; border: 0; color: var(--muted); font: 500 10.5px var(--font-mono); text-align: left; cursor: pointer; }
+.pvbar:hover { color: var(--fg); }
+.pvbar .ico { transition: transform .15s; }
+.pvbox.shut .pvbar .ico { transform: rotate(-90deg); }
+.pvcap { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pvmini { flex: none; width: 30px; height: 18px; border-radius: 3px; overflow: hidden; display: grid; place-items: center; background: var(--node-2); }
+.pvmini .pvbig { object-fit: cover; }
+.pvmini.px .pvbig { object-fit: contain; image-rendering: pixelated; padding: 1px; }
+.pvbox:not(.shut) .pvmini { display: none; }
+.pvstage, .pvc-img { position: relative; display: grid; place-items: center; overflow: hidden; background: repeating-conic-gradient(var(--node-2) 0 25%, var(--node) 0 50%) 0 0 / 14px 14px; }
+.pvstage { height: 136px; margin: 0 8px 8px; border-radius: 4px; border: 1px solid var(--line); }
+.pvbox.shut .pvstage { display: none; }
+.pvbig { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .2s; }
+.pvbig.ok, .pvc-img > img:not(.pvbig) { opacity: 1; }
+.px .pvbig { object-fit: contain; image-rendering: pixelated; padding: 14px; }
+.pvstage.loading::after, .pvc-img.loading::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--fg) 7%, transparent) 50%, transparent 70%) 0 0 / 200% 100%; animation: pvshine 1.2s linear infinite; }
+@keyframes pvshine { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.pvstage.empty, .pvc-img.empty { background: var(--node-2); }
+.pvmsg { padding: 10px 14px; text-align: center; font-size: 11px; line-height: 1.4; color: var(--muted); }
+.pvcards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.pvcard { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel-2); }
+.pvc-img { height: 168px; --node: var(--panel); --node-2: var(--panel-2); }
+.pvc-img > img { width: 100%; height: 100%; object-fit: contain; }
+.pvc-img.px > img { image-rendering: pixelated; padding: 18px; }
+.pvcard.sm { display: flex; align-items: center; }
+.pvcard.sm .pvc-img { width: 56px; height: 56px; flex: none; border-right: 1px solid var(--line); }
+.pvcard.sm .pvc-img.px > img { padding: 8px; }
+.pvcard.sm .pvc-img .pvmsg { display: none; }
+.pvc-meta { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 10px; }
+.pvc-t { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.pvc-t b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pvc-t code { background: none; padding: 0; font-size: 10.5px; color: var(--muted); }
+.pvc-l { display: flex; gap: 10px; }
+.pvlink { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.pvlink:hover { text-decoration: underline; }
+.slotpic { position: absolute; left: 50%; top: 50%; width: 58%; height: 58%; transform: translate(-50%, -50%); display: grid; place-items: center; pointer-events: none; }
+.slotpic img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.slot.pic .slotlbl { display: none; }
+.slotin:focus ~ .slotpic { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   #wires path.pulse { display: none !important; }
   * { transition: none !important; animation: none !important; }
@@ -578,6 +654,11 @@ pre.code.mini .ln { padding: 0; }
           <button id="t-add" class="btn sm ghost" type="button" title="Search and add a node" data-it="Cerca e aggiungi un nodo"><i data-ic="plus" data-s="14"></i>Node <kbd>Space</kbd></button>
           <button id="t-frame" class="ib" type="button" title="Comment frame (C)" data-it="Riquadro commento (C)" aria-label="Comment frame"><i data-ic="frame"></i></button>
           <button id="t-snap" class="ib tog" type="button" title="Snap to grid" data-it="Aggancia alla griglia" aria-label="Snap to grid"><i data-ic="recipe"></i></button>
+          <button id="t-prev" class="ib tog" type="button" title="Wiki previews: pictures of items, mobs and particles from minecraft.wiki (P)" data-it="Anteprime dalla wiki: immagini di oggetti, mob e particelle da minecraft.wiki (P)" aria-label="Wiki previews" aria-pressed="false"><i data-ic="image"></i></button>
+          <span class="tsep fo" aria-hidden="true"></span>
+          <button id="t-undo" class="ib fo" type="button" title="Undo (Ctrl Z)" data-it="Annulla (Ctrl Z)" aria-label="Undo"><i data-ic="undo"></i></button>
+          <button id="t-redo" class="ib fo" type="button" title="Redo (Ctrl Y)" data-it="Ripeti (Ctrl Y)" aria-label="Redo"><i data-ic="redo"></i></button>
+          <button id="t-focus" class="ib" type="button" title="Hide the interface and use the whole screen for the canvas (H)" data-it="Nascondi l'interfaccia e usa tutto lo schermo per la tela (H)" aria-label="Hide the interface" aria-pressed="false"><i data-ic="expand"></i></button>
         </div>
         <div class="cvtools br">
           <button id="t-zout" class="ib" type="button" title="Zoom out" data-it="Riduci" aria-label="Zoom out"><i data-ic="zout"></i></button>
@@ -599,6 +680,7 @@ pre.code.mini .ln { padding: 0; }
     <div id="rp-code" class="pane" hidden></div>
     <div id="rp-probs" class="pane" hidden></div>
   </aside>
+  <div id="dock-handle" role="separator" aria-orientation="horizontal" aria-label="Resize the panels" title="Drag to resize the panels" data-it="Trascina per ridimensionare i pannelli"></div>
   <footer id="status">
     <span class="stitem mono" id="st-ver">Java 26.3+ · pack format 121.0</span>
     <span class="stitem" id="st-count"></span>
@@ -731,6 +813,11 @@ const ICONS = {
   pack: 'M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8',
   layers: 'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5',
   sparkle: 'M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6',
+  image: 'M4 5h16v14H4zM4 15.5l4.5-4.5 4 4 2.5-2.5 5 5M15.5 9h.01',
+  expand: 'M14 4h6v6M20 4l-6.5 6.5M10 20H4v-6M4 20l6.5-6.5',
+  shrink: 'M19 10h-5V5M14 10l6-6M5 14h5v5M10 14l-6 6',
+  chev: 'M6 9l6 6 6-6',
+  ext: 'M14 4h6v6M20 4l-8.5 8.5M18 14v6H4V6h6',
 };
 function icon(name, size = 16) {
   const ns = 'http://www.w3.org/2000/svg';
@@ -746,7 +833,7 @@ function icon(name, size = 16) {
 /* ============ Game data (Java 26.3) ============ */
 const PACK_FORMAT_263 = [121, 0];
 
-const MOBS = ('allay armadillo axolotl bat bee blaze bogged breeze camel camel_husk cat cave_spider chicken cod copper_golem cow creaker creeper dolphin donkey drowned elder_guardian ender_dragon enderman endermite evoker fox frog ghast giant glow_squid goat guardian happy_ghast hoglin horse husk illusioner iron_golem llama magma_cube mooshroom mule nautilus ocelot panda parched parrot phantom pig piglin piglin_brute pillager polar_bear pufferfish rabbit ravager salmon sheep shulker silverfish skeleton skeleton_horse slime sniffer snow_golem spider squid stray strider tadpole trader_llama tropical_fish turtle vex villager vindicator wandering_trader warden witch wither wither_skeleton wolf zoglin zombie zombie_horse zombie_nautilus zombie_villager zombified_piglin').split(' ');
+const MOBS = ('allay armadillo axolotl bat bee blaze bogged breeze camel camel_husk cat cave_spider chicken cod copper_golem cow creaking creeper dolphin donkey drowned elder_guardian ender_dragon enderman endermite evoker fox frog ghast giant glow_squid goat guardian happy_ghast hoglin horse husk illusioner iron_golem llama magma_cube mooshroom mule nautilus ocelot panda parched parrot phantom pig piglin piglin_brute pillager polar_bear pufferfish rabbit ravager salmon sheep shulker silverfish skeleton skeleton_horse slime sniffer snow_golem spider squid stray strider tadpole trader_llama tropical_fish turtle vex villager vindicator wandering_trader warden witch wither wither_skeleton wolf zoglin zombie zombie_horse zombie_nautilus zombie_villager zombified_piglin').split(' ');
 const OTHER_ENTITIES = ('armor_stand mannequin marker interaction block_display item_display text_display item_frame glow_item_frame painting area_effect_cloud lightning_bolt tnt falling_block experience_orb item end_crystal firework_rocket arrow snowball fireball small_fireball wind_charge minecart chest_minecart oak_boat leash_knot eye_of_ender evoker_fangs').split(' ');
 const ENTITIES = [...MOBS, ...OTHER_ENTITIES];
 const FRAMES = ['item_frame', 'glow_item_frame'];
@@ -924,7 +1011,7 @@ def('ev_use', {
   cat: 'evt', hue: 'imp', kind: 'event', title: 'Right-click with item', tag: 'use',
   desc: T('Runs as the player who uses a carrot or warped fungus on a stick. With "custom_data" it only reacts to your own item (give it with the Item node, Custom data field).', 'Parte come il giocatore che usa una carota o un fungo distorto su un bastone. Con "custom_data" reagisce solo al tuo oggetto (dallo con il nodo Oggetto, campo Dati custom).'),
   props: [P.path(),
-  { k: 'item', l: 'Item', t: 'sel', d: 'carrot_on_a_stick', o: [['carrot_on_a_stick', 'Carrot on a stick'], ['warped_fungus_on_a_stick', 'Warped fungus on a stick']] },
+  { k: 'item', l: 'Item', t: 'sel', pv: 'item', d: 'carrot_on_a_stick', o: [['carrot_on_a_stick', 'Carrot on a stick'], ['warped_fungus_on_a_stick', 'Warped fungus on a stick']] },
   { k: 'cdata', l: 'Only with custom_data', t: 'text', mono: true, d: '', ph: '{wand:1b}' }],
   ev: {
     reg: (n, c, fn) => {
@@ -2467,6 +2554,241 @@ function argsEditor(n, pd) {
   return wrap;
 }
 
+/* ============ Wiki previews ============
+   Images are linked (never bundled) from minecraft.wiki, with minecraft.fandom.com as fallback.
+   A desktop build can point PV.base to a local folder made by tools/download_previews.py. */
+const WIKI = 'https://minecraft.wiki', FANDOM = 'https://minecraft.fandom.com';
+const PV_SMALL = new Set(['of', 'the', 'on', 'a', 'and', 'with']);
+const PV_NAMES = {
+  experience_bottle: "Bottle o' Enchanting", ender_eye: 'Eye of Ender', eye_of_ender: 'Eye of Ender', writable_book: 'Book and Quill', map: 'Empty Map', filled_map: 'Map',
+  slime_ball: 'Slimeball', cooked_beef: 'Steak', beef: 'Raw Beef', redstone: 'Redstone Dust', tnt: 'TNT', tnt_minecart: 'Minecart with TNT', chest_minecart: 'Minecart with Chest',
+  turtle_helmet: 'Turtle Shell', jack_o_lantern: "Jack o'Lantern", leash_knot: 'Lead', unluck: 'Bad Luck', dolphins_grace: "Dolphin's Grace", nether_wastes: 'Nether Wastes',
+  overworld: 'Overworld', the_nether: 'The Nether', the_end: 'The End', lightning_bolt: 'Lightning', block_display: 'Block Display', item_display: 'Item Display', text_display: 'Text Display',
+};
+/* entity → item whose inventory icon represents it */
+const PV_ENT_ITEM = {
+  armor_stand: 'armor_stand', item_frame: 'item_frame', glow_item_frame: 'glow_item_frame', painting: 'painting', tnt: 'tnt', end_crystal: 'end_crystal', firework_rocket: 'firework_rocket',
+  arrow: 'arrow', spectral_arrow: 'spectral_arrow', trident: 'trident', snowball: 'snowball', egg: 'egg', ender_pearl: 'ender_pearl', fireball: 'fire_charge', small_fireball: 'fire_charge', wind_charge: 'wind_charge',
+  minecart: 'minecart', chest_minecart: 'chest_minecart', tnt_minecart: 'tnt_minecart', oak_boat: 'oak_boat', leash_knot: 'lead', eye_of_ender: 'ender_eye', experience_orb: 'experience_bottle',
+};
+const PV_FACE = {
+  creeper: 'Creeper_face_1.png', goat: 'Goat_face_1.png', guardian: 'Guardian_face_1.png', hoglin: 'Hoglin_face_1.png', zoglin: 'Zoglin_face_1.png',
+  dolphin: 'Dolphin_face_(without_body).png', cod: 'Cod_body.png', salmon: 'Salmon_body.png', tropical_fish: 'Tropical_Fish_body.png', nautilus: 'Nautilus_body.png', zombie_nautilus: 'Zombie_Nautilus_body.png',
+};
+const PV_EFFECT = { unluck: 'bad-luck', dolphins_grace: "dolphin's-grace" };
+const PV_PARTICLE = {
+  happy_villager: 'Single_crop_growth_particle_example.png', bubble: 'Projectile_bubble_particle_example.png', bubble_pop: 'Particle_bubble_pop.png', ash: 'Particles_ash.png', white_ash: 'Particle_white_ash.png',
+  trial_spawner_detection: 'Trial_spawner_particles.png', block_crumble: 'Creaking_crumble_particle_example.png', trial_omen: 'Trial_omen_particle_example.png',
+};
+const PV_BIOME = { dripstone_caves: 'Dripstone_Caves_Light.png', deep_dark: 'Deep_Dark_Light.png', nether_wastes: 'Nether.png' };
+const PV_BIOME_PAGE = { the_end: 'The End (biome)' };
+const PV_DIM = { overworld: ['Overworld.png', 'Plains.png'], the_nether: ['Nether.png'], the_end: ['The_End.png'] };
+const PV_GIF_FIRST = new Set(['enchanted_golden_apple', 'enchanted_book', 'experience_bottle', 'nether_star', 'end_crystal', 'compass', 'recovery_compass', 'clock', 'written_book', 'debug_stick']);
+/* which list each field draws from, and how the node shows it */
+const PV_KIND = { items: 'item', blocks: 'block', entities: 'entity', effects: 'effect', particles: 'particle', biomes: 'biome', dims: 'dim' };
+const PV_BOX_KINDS = new Set(['particle', 'biome', 'dim']);
+const PV_BOX_NODES = { fl_summon: 'type', en_summon: 'type', wd_particle: 'pt', cd_biome: 'b', cd_dim: 'dim', fl_in: 'dim' };
+
+const pvEnc = f => encodeURIComponent(f).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+const pvTitle = id => PV_NAMES[id] || id.split('_').map((w, i) => (i && PV_SMALL.has(w)) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+const pvFile = t => t.replace(/ /g, '_');
+
+const PV = {
+  on: false, base: '', cache: {}, pend: new Map(), queue: new Set(), bad: new Set(), good: new Map(), local: null,
+  init() {
+    this.base = typeof window.VISIPACK_PREVIEWS === 'string' ? window.VISIPACK_PREVIEWS.replace(/\/?$/, '/') : '';
+    try { this.cache = JSON.parse(store.get('visipack.wikiimg.v1') || '{}') || {}; } catch (_) { this.cache = {}; }
+  },
+  get blocked() { return !!(window.claude && typeof window.claude.use === 'function'); },
+  /* "minecraft:diamond_sword[...]" → "diamond_sword"; tags, macros and other namespaces → null */
+  norm(v) {
+    let s = String(v ?? '').trim(); if (!s || s.startsWith('#') || s.includes('$(')) return null;
+    s = s.split(/[\[{\s]/)[0];
+    if (s.includes(':')) { const [ns, id] = s.split(':'); if (ns !== 'minecraft') return null; s = id; }
+    return /^[a-z0-9_./-]+$/.test(s) ? s : null;
+  },
+  resolve(kind, raw) {
+    const id = this.norm(raw); if (!id) return null;
+    const T_ = pvTitle(id), F = pvFile(T_);
+    const r = { kind, id, title: T_, page: T_, files: [], thumb: 0, pixel: true, api: null };
+    if (kind === 'item' || kind === 'block') {
+      r.files = PV_GIF_FIRST.has(id) ? [`Invicon_${F}.gif`, `Invicon_${F}.png`] : [`Invicon_${F}.png`, `Invicon_${F}.gif`];
+      r.api = T_;
+    } else if (kind === 'entity') {
+      if (MOBS.includes(id) || PV_FACE[id]) { r.files = [PV_FACE[id] || `${F}_face.png`, `Invicon_${F}_Spawn_Egg.png`]; r.api = T_; r.mob = true; }
+      else if (PV_ENT_ITEM[id]) { const it = PV_ENT_ITEM[id], IT = pvFile(pvTitle(it)); r.files = [`Invicon_${IT}.png`, `Invicon_${IT}.gif`]; r.api = T_; }
+      else r.api = T_;
+    } else if (kind === 'effect') {
+      r.files = [`EffectSprite_${(PV_EFFECT[id] || id).replace(/_/g, '-')}.png`];
+    } else if (kind === 'particle') {
+      const U = id.charAt(0).toUpperCase() + id.slice(1);
+      r.files = PV_PARTICLE[id] ? [PV_PARTICLE[id]] : [`${U}_particle_example_JE.png`, `${U}_particle_example.png`, `${U}_particle_example_JE1.png`];
+      r.thumb = 300; r.pixel = false; r.page = 'Particles (Java Edition)'; r.title = T_ + ' particle';
+    } else if (kind === 'biome') {
+      r.files = [PV_BIOME[id] || `${F}.png`]; r.thumb = 300; r.pixel = false; r.page = PV_BIOME_PAGE[id] || T_;
+    } else if (kind === 'dim') {
+      r.files = PV_DIM[id] || [`${F}.png`]; r.thumb = 300; r.pixel = false;
+    }
+    return r;
+  },
+  /* candidate URLs, best first: minecraft.wiki (thumbnail, then original), then Fandom */
+  srcs(r, big) {
+    if (!r || !r.files.length) return [];
+    if (this.base) return r.files.map(f => this.base + f);
+    const out = [];
+    r.files.forEach(f => { const e = pvEnc(f); if (r.thumb && !big) out.push(`${WIKI}/images/thumb/${e}/${r.thumb}px-${e}`); out.push(`${WIKI}/images/${e}`); });
+    out.push(`${FANDOM}/wiki/Special:FilePath/${pvEnc(r.files[0])}${r.thumb && !big ? '?width=' + r.thumb : ''}`);
+    return out;
+  },
+  pageUrl(r, site) { const p = pvEnc(pvFile(r.page)); return site === 'fandom' ? `${FANDOM}/wiki/${p}` : `${WIKI}/w/${p}`; },
+  img(urls, cls, key, onFail) {
+    const img = h('img.' + cls, { alt: '', draggable: 'false' });
+    img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
+    const known = key && this.good.get(key);
+    const list = known ? [known] : urls.filter(u => !this.bad.has(u));
+    let i = 0;
+    const next = () => { if (i >= list.length) { img.removeAttribute('src'); img.classList.add('miss'); if (key) this.good.delete(key); if (onFail) onFail(); return; } img.src = list[i++]; };
+    img.addEventListener('error', () => { if (img.src) this.bad.add(img.src); next(); });
+    img.addEventListener('load', () => { img.classList.add('ok'); if (key) this.good.set(key, img.currentSrc || img.src); });
+    if (!list.length) queueMicrotask(next); else next();
+    return img;
+  },
+  /* lead image of a wiki page (rendered mobs, blocks…), batched through the MediaWiki API */
+  api(title) {
+    if (!title) return Promise.resolve('');
+    if (this.base) return this.localIndex().then(ix => ix && ix.renders && ix.renders[title] ? this.base + ix.renders[title] : '');
+    if (this.blocked) return Promise.resolve('');
+    if (title in this.cache) return Promise.resolve(this.cache[title]);
+    if (this.pend.has(title)) return this.pend.get(title).p;
+    let res; const p = new Promise(r => { res = r; }); this.pend.set(title, { p, res });
+    this.queue.add(title); clearTimeout(this._qt); this._qt = setTimeout(() => this.flush(), 80);
+    return p;
+  },
+  async flush() {
+    const titles = [...this.queue].slice(0, 50); titles.forEach(t => this.queue.delete(t));
+    if (this.queue.size) this._qt = setTimeout(() => this.flush(), 80);
+    const found = {}; let ok = false;
+    try {
+      const u = `${WIKI}/api.php?action=query&format=json&formatversion=2&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=360&titles=${encodeURIComponent(titles.join('|'))}`;
+      const j = await (await fetch(u, { credentials: 'omit', referrerPolicy: 'no-referrer' })).json();
+      const q = j.query || {}, norm = {}, redir = {}, pages = {};
+      (q.normalized || []).forEach(x => { norm[x.from] = x.to; });
+      (q.redirects || []).forEach(x => { redir[x.from] = x.to; });
+      (q.pages || []).forEach(pg => { pages[pg.title] = pg.thumbnail ? pg.thumbnail.source : ''; });
+      titles.forEach(t => { let f = norm[t] || t, n = 0; while (redir[f] && n++ < 5) f = redir[f]; found[t] = pages[f] || ''; });
+      ok = true;
+    } catch (_) { }
+    titles.forEach(t => { const v = found[t] || ''; if (ok) this.cache[t] = v; const pd = this.pend.get(t); if (pd) { pd.res(v); this.pend.delete(t); } });
+    if (ok) { clearTimeout(this._sv); this._sv = setTimeout(() => store.set('visipack.wikiimg.v1', JSON.stringify(this.cache)), 500); }
+  },
+  localIndex() { if (!this._ix) this._ix = fetch(this.base + 'index.json').then(r => r.json()).catch(() => null); return this._ix; },
+
+  /* ---------- pieces used by the editor ---------- */
+  kindOf(pd) { return pd ? pd.pv || (pd.dl && PV_KIND[pd.dl]) || null : null; },
+  /* small icon in a node row, next to the field */
+  inline(n, pd) {
+    const kind = this.kindOf(pd); if (!kind || PV_BOX_KINDS.has(kind)) return null;
+    const box = h('span.pvi', { 'data-pv': n.id + ':' + pd.k, 'aria-hidden': 'true' });
+    this.fillInline(box, kind, propVal(n, pd));
+    return box;
+  },
+  fillInline(box, kind, v) {
+    box.innerHTML = ''; box.hidden = false;
+    const r = this.resolve(kind, v);
+    if (!r || !r.files.length) { box.hidden = true; return; }
+    box.title = r.title;
+    box.append(this.img(this.srcs(r), 'pvimg', kind + ':' + r.id, () => { box.hidden = true; }));
+  },
+  /* collapsible picture at the bottom of the node, like the preview in Shader Graph */
+  box(n) {
+    const k = PV_BOX_NODES[n.type]; if (!k) return null;
+    const d = NODES[n.type], pd = d.props.find(p => p.k === k); const kind = this.kindOf(pd);
+    const wrap = h('div.pvbox' + (n.pvo ? '' : '.shut'), { 'data-pvbox': n.id });
+    const bar = h('button.pvbar', { type: 'button', title: tx(T('Show or hide the preview', 'Mostra o nascondi l\u2019anteprima')), 'aria-expanded': n.pvo ? 'true' : 'false' }, icon('chev', 14), h('span.pvmini'), h('span.pvcap'));
+    bar.addEventListener('pointerdown', e => e.stopPropagation());
+    bar.addEventListener('click', e => {
+      e.stopPropagation(); n.pvo = !n.pvo; wrap.classList.toggle('shut', !n.pvo); bar.setAttribute('aria-expanded', n.pvo ? 'true' : 'false');
+      this.fillBox(wrap, kind, propVal(n, pd));
+      ED.measure(n.id); ED.drawWires(); ED.minimap(); App.changed({ layout: true });
+    });
+    wrap.append(bar, h('div.pvstage'));
+    wrap._kind = kind; wrap._k = k; wrap._pd = pd;
+    this.fillBox(wrap, kind, propVal(n, pd));
+    return wrap;
+  },
+  caption(wrap, kind, v) { const r = this.resolve(kind, v); wrap.querySelector('.pvcap').textContent = r ? r.title : tx(T('Preview', 'Anteprima')); return r; },
+  /* closed: a small thumbnail beside the caption; open: the full picture */
+  fillBox(wrap, kind, v) {
+    const stage = wrap.querySelector('.pvstage'), mini = wrap.querySelector('.pvmini'), open = !wrap.classList.contains('shut');
+    stage.innerHTML = ''; stage.className = 'pvstage'; mini.innerHTML = ''; mini.className = 'pvmini';
+    const r = this.caption(wrap, kind, v);
+    const host = open ? stage : mini;
+    const miss = () => { host.classList.remove('loading'); host.innerHTML = ''; if (!open) { mini.hidden = true; return; } stage.classList.add('empty'); stage.append(h('span.pvmsg', this.blocked ? tx(T('Wiki images don\u2019t load inside claude.ai. Open the GitHub Pages version.', 'Le immagini della wiki non si caricano dentro claude.ai. Apri la versione su GitHub Pages.')) : tx(T('No picture from the wiki (missing, or you\u2019re offline)', 'Nessuna immagine dalla wiki (manca, o sei offline)')))); };
+    mini.hidden = false;
+    if (!r) { mini.hidden = true; if (open) { stage.classList.add('empty'); stage.append(h('span.pvmsg', tx(T('Pick a value to see it here', 'Scegli un valore per vederlo qui')))); } return; }
+    const show = (urls, key, pixel) => { host.innerHTML = ''; host.classList.remove('empty', 'loading'); host.classList.toggle('px', !!pixel); host.append(this.img(urls, 'pvbig', key, miss)); };
+    const stat = this.srcs(r);
+    if (stat.length) show(stat, kind + ':' + r.id, r.pixel); else if (!r.api) { miss(); return; } else host.classList.add('loading');
+    if (r.api && kind === 'entity') {
+      this.api(r.api).then(url => {
+        if (!wrap.isConnected || this.norm(this.curVal(wrap)) !== r.id || host.parentNode === null) return;
+        if (!url) { if (!stat.length) miss(); return; }
+        if (!open) return; /* the face icon reads better than a tiny render */
+        const pre = new Image(); pre.referrerPolicy = 'no-referrer';
+        pre.onload = () => { if (wrap.isConnected && !wrap.classList.contains('shut')) show([url], null, false); };
+        pre.src = url;
+      });
+    }
+  },
+  curVal(wrap) { const n = ED.node(wrap.dataset.pvbox); return n ? propVal(n, wrap._pd) : ''; },
+  /* reference card in the inspector */
+  card(n) {
+    const d = NODES[n.type]; if (!d) return null;
+    const vis = visibleProps(n), g = App.graph();
+    const rows = d.props.filter(pd => this.kindOf(pd) && propVal(n, pd) && vis.includes(pd) && !(pd.pin && g.links.some(L => L.b === n.id && L.bp === pd.k))).slice(0, 3);
+    if (!rows.length) return null;
+    const host = h('div.pvcards');
+    rows.forEach((pd, i) => { const c = this.cardFor(n, pd, i === 0); if (c) host.append(c); });
+    return host.childNodes.length ? host : null;
+  },
+  cardFor(n, pd, main) {
+    const kind = this.kindOf(pd), r = this.resolve(kind, propVal(n, pd)); if (!r) return null;
+    const stage = h('div.pvc-img' + (r.pixel ? '.px' : '') + (main ? '' : '.sm'));
+    const miss = () => { stage.classList.remove('loading'); stage.classList.add('empty'); stage.innerHTML = ''; stage.append(h('span.pvmsg', this.blocked ? tx(T('Wiki images don’t load inside claude.ai.', 'Le immagini della wiki non si caricano dentro claude.ai.')) : tx(T('No picture from the wiki (missing, or you\u2019re offline)', 'Nessuna immagine dalla wiki (manca, o sei offline)')))); };
+    const stat = this.srcs(r, main);
+    if (stat.length) stage.append(this.img(stat, 'pvbig', main ? null : kind + ':' + r.id, miss)); else if (!r.api) miss();
+    if (main && r.api) this.api(r.api).then(url => {
+      if (!url) { if (!stat.length) miss(); return; }
+      const pre = new Image(); pre.referrerPolicy = 'no-referrer';
+      pre.onload = () => { if (!stage.isConnected) return; stage.innerHTML = ''; stage.classList.remove('px', 'empty'); pre.className = 'pvbig ok'; stage.append(pre); };
+      pre.src = url;
+    });
+    const link = (site, label) => h('a.pvlink', { href: this.pageUrl(r, site), target: '_blank', rel: 'noopener noreferrer' }, label, icon('ext', 12));
+    return h('div.pvcard' + (main ? '' : '.sm'), { 'data-pv': n.id + ':' + pd.k },
+      stage,
+      h('div.pvc-meta', h('div.pvc-t', h('b', r.title), h('code', 'minecraft:' + r.id)), h('div.pvc-l', link('wiki', 'minecraft.wiki'), link('fandom', 'Fandom'))));
+  },
+  /* a field changed: refresh its icon, box and card without rebuilding the node */
+  sync(n, pd) {
+    if (!this.on) return;
+    const kind = this.kindOf(pd); if (!kind) return;
+    const key = n.id + ':' + pd.k;
+    const v = propVal(n, pd);
+    $$(`.pvi[data-pv="${CSS.escape(key)}"]`).forEach(b => this.fillInline(b, kind, v));
+    const wrap = $(`.pvbox[data-pvbox="${CSS.escape(n.id)}"]`);
+    if (wrap && wrap._k === pd.k) this.fillBox(wrap, kind, v);
+    if ($(`.pvcard[data-pv="${CSS.escape(key)}"]`) || (this.on && App.sel.has(n.id))) this.cardSoon();
+  },
+  cardSoon() { clearTimeout(this._cs); this._cs = setTimeout(() => { if (!$('#rp-props').contains(document.activeElement)) Panels.inspector(); }, 450); },
+  /* every image the app can show, for the desktop download kit */
+  manifest() {
+    const out = [];
+    const add = (kind, list) => list.forEach(id => { const r = this.resolve(kind, id); if (r) out.push({ kind, id: r.id, title: r.title, page: r.page, files: r.files, thumb: r.thumb, api: r.api }); });
+    add('item', ITEMS); add('block', BLOCKS); add('entity', ENTITIES); add('effect', EFFECTS); add('particle', PARTICLES); add('biome', BIOMES); add('dim', DIMENSIONS);
+    return out;
+  },
+};
+
 /* ============ Node editor ============ */
 const GRID = 16;
 const ED = {
@@ -2553,13 +2875,13 @@ const ED = {
         const row = h('div.row.in' + (on ? '.linked' : ''), pin(pd.k, 'in', pd.pin, on));
         if (pd.t === 'bool') { row.append(renderField(n, pd, true)); body.append(row); return; }
         row.append(h('span.lbl', pd.l || ''));
-        if (!on && inl) row.append(renderField(n, pd, true));
+        if (!on && inl) { if (PV.on) { const ic = PV.inline(n, pd); if (ic) row.append(ic); } row.append(renderField(n, pd, true)); }
         if (on) row.append(h('span.lnk', this.srcLabel(n, pd.k)));
         body.append(row);
       } else if (inl) {
         if (pd.t === 'bool') { body.append(h('div.row', renderField(n, pd, true))); return; }
         const tall = pd.t === 'code' || pd.t === 'area';
-        body.append(h('div.row' + (tall ? '.tall' : ''), pd.l ? h('span.lbl', pd.l) : null, renderField(n, pd, true)));
+        body.append(h('div.row' + (tall ? '.tall' : ''), pd.l ? h('span.lbl', pd.l) : null, PV.on ? PV.inline(n, pd) : null, renderField(n, pd, true)));
       }
     });
     if (d.summary) { const s = d.summary(n, x); if (s) body.append(h('div.nsum' + (d.type === 'vl_sel' ? '.mono' : ''), s)); }
@@ -2574,6 +2896,7 @@ const ED = {
       head.append(h('span.nbadge.' + lv, { title: diag.map(x => x.msg).join('\n') }, icon(lv === 'err' ? 'err' : lv === 'warn' ? 'warn' : 'info', 13)));
     }
     if (body.childNodes.length) el.append(body); else el.classList.add('compact');
+    if (PV.on) { const pb = PV.box(n); if (pb) { el.classList.remove('compact'); el.append(pb); } }
     return el;
   },
   srcLabel(n, k) {
@@ -3217,6 +3540,7 @@ const Panels = {
     if (!sel.length) { this.graphInfo(host, g); return; }
     const n = sel[0], d = NODES[n.type]; if (!d) return;
     host.append(h('div.ihead', { style: { '--cat': ED.hue(d) } }, h('span.icat', CATS[d.cat].l + (d.kind === 'event' ? ' · ' + d.tag : '')), h('h2', d.title), d.desc ? h('p.idesc', tx(d.desc)) : null));
+    if (PV.on) { const pc = PV.card(n); if (pc) host.append(pc); }
     const x = fctx(n);
     const groups = new Map();
     visibleProps(n).forEach(pd => { const k = pd.grp || ''; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(pd); });
@@ -3415,7 +3739,7 @@ const Panels = {
     setTimeout(() => { inp.focus(); inp.select(); }, 30);
   },
   shortcuts() {
-    const rows = [['Space', 'Search and add a node (at the mouse position)'], ['Double-click / right-click the canvas', 'Search and add a node'], ['Drag from a pin into empty space', 'Add a node that is already connected'], ['Alt + click a pin', 'Remove its links'], ['Ctrl + drag a pin', 'Move an existing link'], ['Middle or right drag', 'Pan the view (also Alt + drag)'], ['Wheel / pinch', 'Zoom'], ['Drag on the canvas', 'Box selection (Shift adds)'], ['Shift while dragging a node', 'Turn off grid snapping'], ['Ctrl C / Ctrl V / Ctrl D', 'Copy, paste, duplicate'], ['Delete', 'Delete the selection'], ['C', 'Comment frame around the selection'], ['M', 'Disable / enable the selected nodes'], ['F', 'Frame everything (or the selection)'], ['Ctrl Z / Ctrl Y', 'Undo / redo'], ['Ctrl S', 'Save now'], ['Ctrl E', 'Export the data pack .zip']];
+    const rows = [['Space', 'Search and add a node (at the mouse position)'], ['Double-click / right-click the canvas', 'Search and add a node'], ['Drag from a pin into empty space', 'Add a node that is already connected'], ['Alt + click a pin', 'Remove its links'], ['Ctrl + drag a pin', 'Move an existing link'], ['Middle or right drag', 'Pan the view (also Alt + drag)'], ['Wheel / pinch', 'Zoom'], ['Drag on the canvas', 'Box selection (Shift adds)'], ['Shift while dragging a node', 'Turn off grid snapping'], ['Ctrl C / Ctrl V / Ctrl D', 'Copy, paste, duplicate'], ['Delete', 'Delete the selection'], ['C', 'Comment frame around the selection'], ['M', 'Disable / enable the selected nodes'], ['F', 'Frame everything (or the selection)'], ['P', 'Wiki previews on / off'], ['H', 'Hide / show the interface (whole-screen canvas)'], ['Ctrl Z / Ctrl Y', 'Undo / redo'], ['Ctrl S', 'Save now'], ['Ctrl E', 'Export the data pack .zip']];
     this.modal('Keyboard shortcuts', h('dl.keys.big', ...rows.flatMap(([k, t]) => [h('dt', h('kbd', k)), h('dd', t)])));
   },
   importCommands() {
@@ -3445,9 +3769,16 @@ const RECIPE_TYPES = [['crafting_shaped', 'Shaped crafting'], ['crafting_shapele
 function slotInput(val, on, ph = '', id = '') {
   const inp = h('input.slotin.mono', { value: val || '', list: 'dl-items', placeholder: ph, spellcheck: false, 'aria-label': 'Item', id: id || null });
   inp.addEventListener('input', () => on(inp.value.trim()));
-  const short = h('span.slotlbl'); const upd = () => { short.textContent = (inp.value || '').replace('minecraft:', '').replace(/_/g, ' '); };
-  upd(); inp.addEventListener('input', upd);
-  return h('label.slot' + (val ? '.full' : ''), { title: tx(T('Click and type an item ID or a #tag', 'Clicca e scrivi un ID oggetto o un #tag')) }, inp, short);
+  const short = h('span.slotlbl'), pic = PV.on ? h('span.slotpic', { 'aria-hidden': 'true' }) : null;
+  const slot = h('label.slot' + (val ? '.full' : ''), { title: tx(T('Click and type an item ID or a #tag', 'Clicca e scrivi un ID oggetto o un #tag')) }, inp, pic, short);
+  const updL = () => { short.textContent = (inp.value || '').replace('minecraft:', '').replace(/_/g, ' '); };
+  updL(); inp.addEventListener('input', updL);
+  if (pic) {
+    const updP = () => PV.fillInline(pic, 'item', inp.value);
+    new MutationObserver(() => slot.classList.toggle('pic', !pic.hidden)).observe(pic, { attributes: true, attributeFilter: ['hidden'] });
+    updP(); slot.classList.toggle('pic', !pic.hidden); inp.addEventListener('input', debounce(updP, 250));
+  }
+  return slot;
 }
 function renderRecipe(r) {
   const host = $('#view-recipe'); host.innerHTML = '';
@@ -3553,7 +3884,7 @@ function renderSettings() {
 const LS_PROJ = 'visipack.project.v1', LS_PREFS = 'visipack.prefs.v1', LS_OLD_PROJ = 'catena.project.v1', LS_OLD_PREFS = 'catena.prefs.v1';
 const App = {
   proj: null, gid: null, view: 'graph', ref: null, sel: new Set(), selFrame: null, compiled: null, clip: null,
-  prefs: { snap: true, wheel: 'zoom', theme: '', helpLang: 'en' }, views: {}, hist: [], hi: -1, dirty: false,
+  prefs: { snap: true, wheel: 'zoom', theme: '', helpLang: 'en', previews: false, dock: 0 }, views: {}, hist: [], hi: -1, dirty: false,
   cloud: { db: null, uid: null, state: 'off', at: 0, busy: false, again: false, parts: {} },
 
   graph() { return this.proj.graphs.find(g => g.id === this.gid) || this.proj.graphs[0]; },
@@ -3594,7 +3925,7 @@ const App = {
     n.p[pd.k] = val;
     $$(`[data-f="${CSS.escape(n.id + ':' + pd.k)}"]`).forEach(el => { if (el === document.activeElement) return; if (el.type === 'checkbox') el.checked = !!val; else if (el.tagName !== 'BUTTON' && typeof val !== 'object') el.value = val ?? ''; });
     if (pd.k === 'path' && NODES[n.type].kind === 'event') { const el = ED.els.get(n.id); const p = el && el.querySelector('.npath'); if (p) p.lastChild.textContent = val || '—'; }
-    if (o.rerender) { ED.refreshNode(n.id); this.inspectorSoon(); }
+    if (o.rerender) { ED.refreshNode(n.id); this.inspectorSoon(); } else PV.sync(n, pd);
     if (o.soft) this.softCommit(); else this.commit();
     this.changed({ soft: o.soft });
   },
@@ -3802,8 +4133,33 @@ const App = {
     toast(HELP_LANG === 'it' ? 'Tooltip e descrizioni in italiano' : 'Tooltips and descriptions in English', 'info', 1600);
   },
   /* ---------- mobile drawers ---------- */
-  openDrawer(s) { if (innerWidth > 980) return; document.body.classList.toggle('dl-open', s === 'l'); document.body.classList.toggle('dr-open', s === 'r'); },
+  openDrawer(s) { if (!drawerMode()) return; document.body.classList.toggle('dl-open', s === 'l'); document.body.classList.toggle('dr-open', s === 'r'); },
   closeDrawers() { document.body.classList.remove('dl-open', 'dr-open'); },
+  /* ---------- wiki previews ---------- */
+  setPreviews(on) {
+    PV.on = this.prefs.previews = !!on; this.savePrefs();
+    const b = $('#t-prev'); b.classList.toggle('on', PV.on); b.setAttribute('aria-pressed', PV.on ? 'true' : 'false');
+    if (this.view === 'graph') ED.render(); else if (this.view === 'recipe') this.open('recipe', this.ref);
+    Panels.inspector();
+    if (PV.on && PV.blocked) toast(tx(T('Wiki previews are on, but claude.ai blocks images from other sites. Open VisiPack on GitHub Pages (or the installed app) to see them.', 'Anteprime attive, ma claude.ai blocca le immagini di altri siti. Apri VisiPack su GitHub Pages (o l\u2019app installata) per vederle.')), 'warn', 5200);
+    else toast(PV.on ? tx(T('Wiki previews on: pictures from minecraft.wiki', 'Anteprime attive: immagini da minecraft.wiki')) : tx(T('Wiki previews off', 'Anteprime disattivate')), 'info', 1600);
+  },
+  /* ---------- whole-screen canvas ---------- */
+  setFocus(on) {
+    on = !!on; if (on === document.body.classList.contains('focus')) return;
+    if (on && this.view !== 'graph') this.open('graph', this.gid);
+    this.closeDrawers(); closePopovers(); ED.closeMenu();
+    document.body.classList.toggle('focus', on);
+    const b = $('#t-focus'); b.innerHTML = ''; b.append(icon(on ? 'shrink' : 'expand', 16)); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.title = on ? (HELP_LANG === 'it' ? 'Mostra l\u2019interfaccia (H)' : 'Show the interface (H)') : (HELP_LANG === 'it' ? 'Nascondi l\u2019interfaccia e usa tutto lo schermo per la tela (H)' : 'Hide the interface and use the whole screen for the canvas (H)');
+    b.setAttribute('aria-label', on ? 'Show the interface' : 'Hide the interface');
+    const coarse = matchMedia('(pointer: coarse)').matches, standalone = matchMedia('(display-mode: standalone)').matches;
+    try {
+      if (on && coarse && !standalone && document.fullscreenEnabled && !document.fullscreenElement) document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => { });
+      if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => { });
+    } catch (_) { }
+    requestAnimationFrame(() => ED.minimap());
+  },
   theme(t) { this.prefs.theme = t; const r = document.documentElement, v = t || this.hostTheme; if (v) r.setAttribute('data-theme', v); else r.removeAttribute('data-theme'); this.savePrefs(); ED.minimap(); },
 };
 App.recompileSoon = debounce(() => App.recompile(), 160);
@@ -3904,6 +4260,27 @@ function refreshDynLists() {
   ['realsize:reroll', 'frame_editor:glow_on', 'frame_editor:glow_off', 'frame_editor:tag_nearby'].forEach(v => f.append(h('option', { value: v })));
   (App.proj.recipes || []).forEach(x => r.append(h('option', { value: App.proj.meta.namespace + ':' + x.name })));
 }
+/* drawers on phones and small landscape windows; a bottom dock on tall screens ≥ 700px wide */
+const DRAWER_MQ = '(max-width: 699px), (max-width: 980px) and (orientation: landscape)';
+function drawerMode() { return matchMedia(DRAWER_MQ).matches; }
+function dockMode() { return matchMedia('(min-width: 700px) and (orientation: portrait)').matches; }
+function setDock(px, save) {
+  const app = $('#app'), H = app.getBoundingClientRect().height;
+  const v = Math.round(Math.max(170, Math.min(H - 48 - 28 - 180, px)));
+  app.style.setProperty('--dock', v + 'px'); if (save) { App.prefs.dock = v; App.savePrefsSoon(); }
+  ED.minimap();
+}
+function wireDock() {
+  const hd = $('#dock-handle'); let st = null;
+  if (App.prefs.dock) $('#app').style.setProperty('--dock', App.prefs.dock + 'px');
+  hd.addEventListener('pointerdown', e => { if (!dockMode()) return; e.preventDefault(); hd.setPointerCapture(e.pointerId); st = { y: e.clientY, h: $('#left').getBoundingClientRect().height }; hd.classList.add('drag'); });
+  hd.addEventListener('pointermove', e => { if (st) setDock(st.h + (st.y - e.clientY), false); });
+  const end = () => { if (!st) return; st = null; hd.classList.remove('drag'); setDock($('#left').getBoundingClientRect().height, true); };
+  hd.addEventListener('pointerup', end); hd.addEventListener('pointercancel', end);
+  hd.addEventListener('dblclick', () => { App.prefs.dock = 0; $('#app').style.removeProperty('--dock'); App.savePrefs(); ED.minimap(); });
+  hd.tabIndex = 0;
+  hd.addEventListener('keydown', e => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); setDock($('#left').getBoundingClientRect().height + (e.key === 'ArrowUp' ? 24 : -24), true); } });
+}
 function wireUI() {
   $('#b-undo').addEventListener('click', () => App.undo());
   $('#b-redo').addEventListener('click', () => App.redo());
@@ -3921,6 +4298,8 @@ function wireUI() {
       { l: 'Save now', icon: 'cloud', k: 'Ctrl S', act: () => App.saveNow() },
       { l: 'Pack settings', icon: 'gear', act: () => App.open('settings') },
       { l: 'Keyboard shortcuts', icon: 'key', act: () => Panels.shortcuts() },
+      { l: PV.on ? 'Wiki previews: turn off' : 'Wiki previews: turn on', icon: 'image', k: 'P', act: () => App.setPreviews(!PV.on) },
+      { l: 'Hide the interface', icon: 'expand', k: 'H', act: () => App.setFocus(true) },
       { l: HELP_LANG === 'it' ? 'Tooltips & descriptions: English' : 'Tooltips & descriptions: Italiano', icon: 'info', act: () => App.setHelpLang(HELP_LANG === 'it' ? 'en' : 'it') },
       '-',
       { l: 'Theme: automatic', icon: 'sparkle', act: () => App.theme('') },
@@ -3950,7 +4329,9 @@ function wireUI() {
     if (mod && k === 's') { e.preventDefault(); App.saveNow(); return; }
     if (mod && k === 'e') { e.preventDefault(); App.exportZip(); return; }
     if (typing || $('.modal-bg') || $('.finder')) return;
-    if (e.key === 'Escape') { closePopovers(); ED.closeMenu(); App.closeDrawers(); if (App.sel.size || App.selFrame) { App.sel = new Set(); App.selFrame = null; App.selectionChanged(); } return; }
+    if (e.key === 'Escape') { const busy = $('.menu') || $('.popover') || document.body.matches('.dl-open,.dr-open'); closePopovers(); ED.closeMenu(); App.closeDrawers(); if (App.sel.size || App.selFrame) { App.sel = new Set(); App.selFrame = null; App.selectionChanged(); } else if (!busy && document.body.classList.contains('focus')) App.setFocus(false); return; }
+    if (!mod && k === 'p') { App.setPreviews(!PV.on); return; }
+    if (!mod && k === 'h') { App.setFocus(!document.body.classList.contains('focus')); return; }
     if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? App.redo() : App.undo(); return; }
     if (mod && k === 'y') { e.preventDefault(); App.redo(); return; }
     if (App.view !== 'graph') return;
@@ -3979,13 +4360,20 @@ function wireUI() {
     }
     if (App.clip) ED.paste(App.clip);
   });
-  window.addEventListener('resize', () => { if (innerWidth > 980) App.closeDrawers(); });
+  window.addEventListener('resize', () => { if (!drawerMode()) App.closeDrawers(); });
+  const pv = $('#t-prev'); pv.classList.toggle('on', PV.on); pv.setAttribute('aria-pressed', PV.on ? 'true' : 'false');
+  pv.addEventListener('click', () => App.setPreviews(!PV.on));
+  $('#t-focus').addEventListener('click', () => App.setFocus(!document.body.classList.contains('focus')));
+  $('#t-undo').addEventListener('click', () => App.undo());
+  $('#t-redo').addEventListener('click', () => App.redo());
+  wireDock();
 }
 function boot() {
   App.hostTheme = document.documentElement.getAttribute('data-theme');
   let prefs = null; try { prefs = JSON.parse(store.get(LS_PREFS) || store.get(LS_OLD_PREFS) || 'null'); } catch (_) { }
   if (prefs) Object.assign(App.prefs, prefs);
   HELP_LANG = App.prefs.helpLang === 'it' ? 'it' : 'en';
+  PV.init(); PV.on = !!App.prefs.previews;
   if (App.prefs.theme) document.documentElement.setAttribute('data-theme', App.prefs.theme);
   $$('i[data-ic]').forEach(i => i.replaceWith(icon(i.dataset.ic, +i.dataset.s || 16)));
   applyStaticTips();

@@ -12,6 +12,9 @@ Everything runs in the browser, in a single `index.html` with no build step and 
 - **Recipes** with a crafting-grid editor, **extra files** (predicates, loot tables, tags) with templates.
 - Live code panel with line → node mapping, a problems list, undo/redo, comment frames, minimap, light and dark themes.
 - Interface in English; node descriptions, field help and tooltips can also be shown in Italian (⋯ menu or Pack settings).
+- **Wiki previews** (optional, image button on the canvas or `P`): item and block icons next to the fields, mob faces and renders, effect icons, and fold-out pictures of particles, biomes and dimensions inside the nodes, like the previews in Shader Graph. The selected node also gets a reference card with links to minecraft.wiki and Fandom. Pictures are linked from [minecraft.wiki](https://minecraft.wiki) (fallback: minecraft.fandom.com), never bundled, so the app stays light. They don't load inside claude.ai, which blocks images from other sites.
+- **Whole-screen canvas** (expand button on the canvas or `H`): hides the bars and panels to work on the nodes, handy on phones; `H`, `Esc` or the same button bring them back. On phones it also goes fullscreen when the browser allows it.
+- **Any screen shape**: three columns on wide screens; on portrait monitors and tablets the panels sit side by side under the canvas (drag the handle to resize, double-click to reset); on phones the project panel slides in from the left and the properties open as a bottom sheet.
 
 ## Publishing on GitHub Pages
 
@@ -35,6 +38,10 @@ The icons in `icons/` are generated from `Logo.png`; the app does not load `Logo
 After the first visit the editor also works offline. When you upload a new `index.html`, the app picks it up the next time it is opened online; if you change the icons or the manifest, also raise `VERSION` at the top of `sw.js` (e.g. `visipack-v2`).
 
 Installed app and browser tab share the same saved projects only on Chrome/Edge; on iOS the home-screen app has its own storage, so move projects with **Export project .json**.
+
+## Offline previews for a desktop version
+
+`visipack-desktop-previews-kit.zip` (not needed for the website) contains `download_previews.py` and the list of every picture. Run it on your computer to save them all into a `previews/` folder, then set `window.VISIPACK_PREVIEWS = 'previews/'` before VisiPack's script: the app will read the pictures from that folder instead of the wiki.
 
 ## Saving your work
 

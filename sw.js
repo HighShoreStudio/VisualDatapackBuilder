@@ -1,6 +1,6 @@
 // VisiPack service worker: works offline after the first visit.
 // Bump VERSION when you upload a new index.html so clients drop the old cache.
-const VERSION = 'visipack-v2';
+const VERSION = 'visipack-v3';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png', './icons/favicon-48.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
